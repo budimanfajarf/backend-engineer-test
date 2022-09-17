@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,12 +16,25 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, ...restData } = createUserDto;
+    const { email, password, ...restData } = createUserDto;
+
+    const existingUser = await this.usersRepository.findOneBy({ email });
+
+    if (existingUser) {
+      throw new HttpException(
+        `Email ${email} already used`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, UserSaltOrRounds);
+
     const user = this.usersRepository.create({
+      email,
       password: hashedPassword,
       ...restData,
     });
+
     return this.usersRepository.save(user);
   }
 
