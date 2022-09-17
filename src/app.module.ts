@@ -21,7 +21,7 @@ import { User } from './users/entities/user.entity';
     }),
     UsersModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}
