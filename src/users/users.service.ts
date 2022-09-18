@@ -45,16 +45,17 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOneBy(where: FindOptionsWhere<User>): Promise<User | null> {
-    return this.usersRepository.findOneBy(where);
-  }
-
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const findedUser = await this.findOneBy({ id });
+  async findOneBy(where: FindOptionsWhere<User>): Promise<User> {
+    const findedUser = await this.usersRepository.findOneBy(where);
 
     if (!findedUser)
       throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
 
+    return findedUser;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const findedUser = await this.findOneBy({ id });
     const { email, ...restData } = updateUserDto;
 
     if (email && findedUser.email !== email) {
@@ -72,11 +73,7 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    const findedUser = await this.findOneBy({ id });
-
-    if (!findedUser)
-      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
-
+    await this.findOneBy({ id });
     await this.usersRepository.delete(id);
   }
 
@@ -84,18 +81,12 @@ export class UsersService {
     id: string,
     updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
-    const findedUser = await this.findOneBy({ id });
-
-    if (!findedUser)
-      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
-
+    await this.findOneBy({ id });
     const { password } = updateUserPasswordDto;
     const hashedPassword = await bcrypt.hash(
       password,
       bcryptConstants.saltOrRounds,
     );
-
-    Logger.log(hashedPassword);
 
     await this.usersRepository.update({ id }, { password: hashedPassword });
   }

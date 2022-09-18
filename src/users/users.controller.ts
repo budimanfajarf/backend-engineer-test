@@ -18,7 +18,7 @@ import { ValidatedJWTUserData } from 'src/auth/jwt.strategy';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRole } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -28,22 +28,34 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @Request() req: { user: ValidatedJWTUserData },
+  ) {
+    const { user: loggedInUser } = req;
+
+    if (loggedInUser.role !== UserRole.ADMIN) {
+      throw new HttpException(
+        `You are not allowed to create a user.`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<User> {
     return this.usersService.findOneBy({ id });
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @Request() req: { user: ValidatedJWTUserData },
@@ -70,11 +82,12 @@ export class UsersController {
       );
     }
 
-    return this.usersService.update(id, { role, ...restInput });
+    await this.usersService.update(id, { role, ...restInput });
+    return { message: 'User data updated.' };
   }
 
   @Delete(':id')
-  remove(
+  async remove(
     @Param('id') id: string,
     @Request() req: { user: ValidatedJWTUserData },
   ) {
@@ -87,6 +100,7 @@ export class UsersController {
       );
     }
 
-    return this.usersService.remove(id);
+    this.usersService.remove(id);
+    return { message: 'User deleted.' };
   }
 }

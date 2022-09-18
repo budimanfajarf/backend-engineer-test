@@ -54,10 +54,10 @@ export class AppController {
     @Request() req: { user: ValidatedJWTUserData },
   ) {
     const { user: loggedInUser } = req;
-
-    return this.usersService.updatePassword(
+    await this.usersService.updatePassword(
       loggedInUser.id,
       updateUserPasswordDto,
     );
+    return { message: 'Successfully update password' };
   }
 }
