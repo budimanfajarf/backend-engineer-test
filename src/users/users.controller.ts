@@ -12,7 +12,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ValidatedJWTUserData } from 'src/auth/jwt.strategy';
 import { UsersService } from './users.service';
@@ -43,29 +43,44 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req: { user: ValidatedJWTUserData },
+  ) {
+    const { user: loggedInUser } = req;
+
+    if (loggedInUser.role !== UserRole.ADMIN && loggedInUser.id !== id) {
+      throw new HttpException(
+        `You are not allowed to update other user data.`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { role, ...restInput } = updateUserDto;
+
+    if (
+      loggedInUser.role !== UserRole.ADMIN &&
+      role &&
+      role === UserRole.ADMIN
+    ) {
+      throw new HttpException(
+        `You are not allowed to change role to ${UserRole.ADMIN}.`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.usersService.update(id, { role, ...restInput });
   }
 
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'User deleted.',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.FORBIDDEN,
-  //   description: 'Not allowed to delete a user.',
-  // })
-  // @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
   @Delete(':id')
   remove(
     @Param('id') id: string,
     @Request() req: { user: ValidatedJWTUserData },
   ) {
-    const { user } = req;
+    const { user: loggedInUser } = req;
 
-    Logger.log(user);
-
-    if (user.role !== UserRole.ADMIN) {
+    if (loggedInUser.role !== UserRole.ADMIN) {
       throw new HttpException(
         'You are not allowed to delete a user.',
         HttpStatus.FORBIDDEN,

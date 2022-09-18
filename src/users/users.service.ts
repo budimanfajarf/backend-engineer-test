@@ -1,6 +1,6 @@
 import { Repository, FindOptionsWhere } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -46,8 +46,14 @@ export class UsersService {
     return this.usersRepository.findOneBy(where);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      await this.usersRepository.findOneByOrFail({ id });
+    } catch (error) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    }
+
+    await this.usersRepository.update({ id }, updateUserDto);
   }
 
   async remove(id: string): Promise<void> {
