@@ -58,6 +58,6 @@ export class AppController {
       loggedInUser.id,
       updateUserPasswordDto,
     );
-    return { message: 'Successfully update password' };
+    return { message: 'Successfully update password.' };
   }
 }
