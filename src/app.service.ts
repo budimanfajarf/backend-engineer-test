@@ -20,22 +20,28 @@ export class AppService implements OnApplicationBootstrap {
     const email = this.config.get<string>('ADMIN_EMAIL') || 'admin@primaku.com';
     const password = this.config.get<string>('ADMIN_PASSWORD') || '#Admin123';
 
+    const userAdmin = await this.authService.validateUser(email, password);
+
+    Logger.log('----- ADMIN ACCOUNT -----');
+
+    if (userAdmin) {
+      Logger.log(email, 'Email');
+      Logger.log(password, 'Password');
+      return;
+    }
+
     try {
-      await this.authService.validateUser(email, password);
-      // Logger.log('Admin exists');
-    } catch (error) {
       await this.usersService.create({
         name: 'Admin',
         email,
         password,
         role: UserRole.ADMIN,
       });
-
-      // Logger.log('Admin created');
-    } finally {
-      Logger.log('----- ADMIN ACCOUNT -----');
       Logger.log(email, 'Email');
       Logger.log(password, 'Password');
+    } catch (error) {
+      Logger.log(email, 'Email');
+      Logger.log('Password has changed', 'Password');
     }
   }
 }

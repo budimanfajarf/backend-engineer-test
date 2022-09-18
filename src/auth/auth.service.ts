@@ -15,7 +15,7 @@ export class AuthService {
     email: string,
     pass: string,
   ): Promise<ValidatedUserData | null> {
-    const user = await this.usersService.findOneBy({ email });
+    const user = await this.usersService.findOneByNullable({ email });
 
     if (user) {
       const isMatch = await bcrypt.compare(pass, user.password);
