@@ -1,10 +1,10 @@
 import { Controller, Request, Post, Get, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { ValidatedUserData } from './auth/local.strategy';
 import { ValidatedJWTUserData } from './auth/jwt.strategy';
-import { ApiBody, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './users/dto/login-user.dto';
 
 @Controller()

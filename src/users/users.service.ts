@@ -22,7 +22,7 @@ export class UsersService {
 
     if (existingUser) {
       throw new HttpException(
-        `Email ${email} already used`,
+        `Email ${email} already used.`,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -51,6 +51,11 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
+    const findedUser = await this.findOneBy({ id });
+
+    if (!findedUser)
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+
     await this.usersRepository.delete(id);
   }
 }
