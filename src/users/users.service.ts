@@ -18,7 +18,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, ...restData } = createUserDto;
 
-    const existingUser = await this.usersRepository.findOneBy({ email });
+    const existingUser = await this.findOneByNullable({ email });
 
     if (existingUser) {
       throw new HttpException(
@@ -54,12 +54,16 @@ export class UsersService {
     return findedUser;
   }
 
+  findOneByNullable(where: FindOptionsWhere<User>) {
+    return this.usersRepository.findOneBy(where);
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const findedUser = await this.findOneBy({ id });
     const { email, ...restData } = updateUserDto;
 
     if (email && findedUser.email !== email) {
-      const existingUser = await this.findOneBy({ email });
+      const existingUser = await this.findOneByNullable({ email });
 
       if (existingUser) {
         throw new HttpException(
@@ -69,12 +73,12 @@ export class UsersService {
       }
     }
 
-    await this.usersRepository.update({ id }, { email, ...restData });
+    return this.usersRepository.update({ id }, { email, ...restData });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string) {
     await this.findOneBy({ id });
-    await this.usersRepository.delete(id);
+    return this.usersRepository.delete(id);
   }
 
   async updatePassword(
@@ -88,6 +92,6 @@ export class UsersService {
       bcryptConstants.saltOrRounds,
     );
 
-    await this.usersRepository.update({ id }, { password: hashedPassword });
+    return this.usersRepository.update({ id }, { password: hashedPassword });
   }
 }

@@ -102,7 +102,9 @@ export class UsersController {
       );
     }
 
-    this.usersService.remove(id);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const deleteResult = await this.usersService.remove(id);
+    // Logger.log(deleteResult);
     return { message: 'User deleted.' };
   }
 }
