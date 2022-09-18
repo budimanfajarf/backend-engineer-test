@@ -23,7 +23,7 @@ export class UsersService {
     if (existingUser) {
       throw new HttpException(
         `Email ${email} already used.`,
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -47,13 +47,25 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    try {
-      await this.usersRepository.findOneByOrFail({ id });
-    } catch (error) {
+    const findedUser = await this.findOneBy({ id });
+
+    if (!findedUser)
       throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+
+    const { email, ...restData } = updateUserDto;
+
+    if (email && findedUser.email !== email) {
+      const existingUser = await this.findOneBy({ email });
+
+      if (existingUser) {
+        throw new HttpException(
+          `Email ${email} already used.`,
+          HttpStatus.CONFLICT,
+        );
+      }
     }
 
-    await this.usersRepository.update({ id }, updateUserDto);
+    await this.usersRepository.update({ id }, { email, ...restData });
   }
 
   async remove(id: string): Promise<void> {
