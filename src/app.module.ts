@@ -10,6 +10,9 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    /**
+     * @todo Get db config from .env
+     */
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: '127.0.0.1',
@@ -18,7 +21,7 @@ import { AuthModule } from './auth/auth.module';
       password: '',
       database: 'backend_engineer_test',
       entities: [User],
-      synchronize: true,
+      synchronize: true, // Should not use in production
     }),
     UsersModule,
     AuthModule,
