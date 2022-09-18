@@ -10,7 +10,8 @@ import {
   Request,
   HttpException,
   HttpStatus,
-  Logger,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -22,6 +23,7 @@ import { User, UserRole } from './entities/user.entity';
 
 @ApiTags('users')
 @ApiBearerAuth()
+@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {

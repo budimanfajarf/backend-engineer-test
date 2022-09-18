@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -22,6 +23,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
 
@@ -33,4 +35,8 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
 }
