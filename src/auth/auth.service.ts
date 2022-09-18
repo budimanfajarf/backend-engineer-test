@@ -2,10 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/entities/user.entity';
-// import { Logger } from '@nestjs/common';
-
-export type LoginPayload = Omit<User, 'password'>;
+import { ValidatedUserData } from './local.strategy';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +11,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<ValidatedUserData | null> {
     const user = await this.usersService.findOneBy({ email });
 
     if (user) {
@@ -30,7 +30,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: LoginPayload) {
+  async login(user: ValidatedUserData) {
     // Logger.log('user', user);
     const { id, email, role } = user;
     return {
