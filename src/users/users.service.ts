@@ -2,11 +2,11 @@ import { Repository, FindOptionsWhere } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { bcryptConstants } from 'src/auth/constants';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-
-export const UserSaltOrRounds = 10;
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +27,10 @@ export class UsersService {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, UserSaltOrRounds);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      bcryptConstants.saltOrRounds,
+    );
 
     const user = this.usersRepository.create({
       email,
@@ -75,5 +78,25 @@ export class UsersService {
       throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
 
     await this.usersRepository.delete(id);
+  }
+
+  async updatePassword(
+    id: string,
+    updateUserPasswordDto: UpdateUserPasswordDto,
+  ) {
+    const findedUser = await this.findOneBy({ id });
+
+    if (!findedUser)
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+
+    const { password } = updateUserPasswordDto;
+    const hashedPassword = await bcrypt.hash(
+      password,
+      bcryptConstants.saltOrRounds,
+    );
+
+    Logger.log(hashedPassword);
+
+    await this.usersRepository.update({ id }, { password: hashedPassword });
   }
 }
