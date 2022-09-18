@@ -33,6 +33,10 @@ When npm is running, you will see an admin account in the terminal, it'll look l
 
 ```bash
 [Nest] 82074  - 09/19/2022, 1:27:23 AM     LOG ----- ADMIN ACCOUNT -----
-[Nest] 82074  - 09/19/2022, 1:27:23 AM     LOG [Email] admin@primaku.com
+[Nest] 82074  - 09/19/2022, 1:27:23 AM     LOG [Email] admin@test.com
 [Nest] 82074  - 09/19/2022, 1:27:23 AM     LOG [Password] #Admin123
 ```
+
+## Swagger
+
+You can access swagger in localhost:3000/api when npm running
