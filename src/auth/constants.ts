@@ -2,12 +2,12 @@
  * @todo Get this value from .env
  */
 export const jwtConstants = {
-  secret: 'secretKey',
+  secret: process.env.JWT_SECRET_KEY,
 };
 
 /**
  * @todo Get this value from .env
  */
 export const bcryptConstants = {
-  saltOrRounds: 10,
+  saltOrRounds: process.env.BCRYPT_SALT || 'theBcryptSalt@0101',
 };
