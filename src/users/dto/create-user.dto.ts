@@ -6,16 +6,20 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty()
   /**
    * @see https://stackoverflow.com/questions/19605150/regex-for-password-must-contain-at-least-eight-characters-at-least-one-number-a
    */
@@ -30,6 +34,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
+  @ApiProperty()
   @IsEnum(UserRole)
   @IsNotEmpty()
   role: UserRole;

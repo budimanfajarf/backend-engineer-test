@@ -19,6 +19,8 @@ async function bootstrap() {
     .setDescription('Node.js (Nest.js) with TypeScript, TypeORM, Jest, MySQL')
     .setVersion('1.0')
     .addTag('users')
+    .addTag('auth')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
